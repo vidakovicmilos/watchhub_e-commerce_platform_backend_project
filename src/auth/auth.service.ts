@@ -4,7 +4,6 @@ import * as argon from 'argon2';
 import { LoginDto, SignupDto } from './dto';
 import { Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
-import { access } from 'fs';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
