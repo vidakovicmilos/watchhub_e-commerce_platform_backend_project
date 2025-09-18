@@ -34,8 +34,13 @@ export class UserController {
     return this.userService.editUser(userId, dto);
   }
 
-  // ***********************************************
+  @UseGuards(JwtAuthGuard)
+  @Delete('me')
+  deleteMe(@GetUser('id') userId: number) {
+    return this.userService.deleteUser(userId);
+  }
 
+  // ***********************************************
   @Get()
   getAllUsers() {
     return this.userService.getAllUsers();
@@ -46,11 +51,13 @@ export class UserController {
     return this.userService.getUserById(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   deleteUserById(@Param('id', ParseIntPipe) userId: number) {
     return this.userService.deleteUser(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   editUser(
     @Param('id', ParseIntPipe) userId: number,
