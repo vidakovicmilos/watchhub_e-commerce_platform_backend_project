@@ -14,6 +14,8 @@ import { JwtAuthGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import type { User } from '@prisma/client';
 import { EditUserDto } from './dto';
+import { RolesGuard } from 'src/guards';
+import { Roles } from 'src/decorators';
 
 @Injectable()
 @Controller('users')
@@ -51,13 +53,15 @@ export class UserController {
     return this.userService.getUserById(userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Delete(':id')
   deleteUserById(@Param('id', ParseIntPipe) userId: number) {
     return this.userService.deleteUser(userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Patch(':id')
   editUser(
     @Param('id', ParseIntPipe) userId: number,
