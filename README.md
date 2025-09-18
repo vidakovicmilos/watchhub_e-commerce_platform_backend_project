@@ -16,7 +16,7 @@ Tech Stack & Technologies Used:
 
 Before running the project, make sure you have the following installed:
 
-- Node.js (v18+ recommended) - https://nodejs.org/
+- Node.js - https://nodejs.org/
 - NestJS CLI - https://nestjs.com/
 - Docker - https://www.docker.com/
 
