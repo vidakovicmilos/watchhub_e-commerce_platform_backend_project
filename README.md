@@ -58,7 +58,7 @@ Before running the project, make sure you have the following installed:
 
    `npm run start`
 
-2. Start the application in development mode (with hot reload):
+2. Start the application in development mode:
 
    `npm run start:dev`
 
