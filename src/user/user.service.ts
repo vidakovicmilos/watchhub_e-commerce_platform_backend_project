@@ -13,7 +13,8 @@ export class UserService {
       throw new NotFoundException('No users found in the database.');
     }
 
-    return users;
+    const usersWithoutPassword = users.map(({ password, ...rest }) => rest);
+    return usersWithoutPassword;
   }
 
   async getUserById(userId: number) {
@@ -21,7 +22,8 @@ export class UserService {
 
     if (!user) throw new NotFoundException(`User with id ${userId} not found.`);
 
-    return user;
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   async editUser(userId: number, dto: EditUserDto) {
@@ -34,8 +36,8 @@ export class UserService {
       data: { ...dto },
     });
 
-    updatedUser.password = 'NOT_VISABLE_HERE';
-    return updatedUser;
+    const { password, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
   }
 
   async deleteUser(userId: number) {
