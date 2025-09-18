@@ -27,8 +27,8 @@ Before running the project, make sure you have the following installed:
 1. Clone the repository:
 
    ```
-   git clone <https://github.com/vidakovicmilos/watchhub_e-commerce_platform_backend_project>
-   cd <https://github.com/vidakovicmilos/watchhub_e-commerce_platform_backend_project>
+   git clone https://github.com/vidakovicmilos/watchhub_e-commerce_platform_backend_project
+   cd https://github.com/vidakovicmilos/watchhub_e-commerce_platform_backend_project
 
    ```
 
