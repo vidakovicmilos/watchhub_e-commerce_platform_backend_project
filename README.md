@@ -1,5 +1,6 @@
 # **WatchHub E-commerce Backend Project**
 
+⚠️ Project Status: In Progress
 E-commerce platform for selling watches built as a personal backend project.
 
 Tech Stack & Technologies Used:
