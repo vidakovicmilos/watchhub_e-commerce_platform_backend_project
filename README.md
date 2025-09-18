@@ -26,12 +26,15 @@ Before running the project, make sure you have the following installed:
 
 1. Clone the repository:
 
-   git clone <YOUR_PROJECT_URL>
-   cd <YOUR_PROJECT_FOLDER>
+   ```
+   git clone <https://github.com/vidakovicmilos/watchhub_e-commerce_platform_backend_project>
+   cd <https://github.com/vidakovicmilos/watchhub_e-commerce_platform_backend_project>
+
+   ```
 
 2. Install all dependencies:
 
-   npm install
+   `npm install`
 
 ---
 
@@ -39,11 +42,11 @@ Before running the project, make sure you have the following installed:
 
 1. Start the development database:
 
-   npm run db:dev:up
+   `npm run db:dev:up`
 
 2. Restart the database if needed:
 
-   npm run db:dev:restart
+   `npm run db:dev:restart`
 
 > Note: Make sure Docker is running before starting the database.
 
@@ -53,23 +56,13 @@ Before running the project, make sure you have the following installed:
 
 1. Start the application in production mode:
 
-   npm run start
+   `npm run start`
 
 2. Start the application in development mode (with hot reload):
 
-   npm run start:dev
+   `npm run start:dev`
 
-The application will be available at: http://localhost:3000
-
----
-
-## Project Structure
-
-src/
-├─ modules/ # Application modules (users, products, orders, etc.)
-├─ prisma/ # Prisma schema and migrations
-├─ main.ts # Entry point
-└─ ...
+The application will be available at: http://localhost:3333
 
 ---
 
