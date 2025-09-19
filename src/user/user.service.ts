@@ -9,10 +9,6 @@ export class UserService {
   async getAllUsers() {
     const users = await this.prisma.user.findMany();
 
-    if (users.length === 0) {
-      throw new NotFoundException('No users found in the database.');
-    }
-
     const usersWithoutPassword = users.map(({ password, ...rest }) => rest);
     return usersWithoutPassword;
   }

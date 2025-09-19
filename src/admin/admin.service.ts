@@ -11,8 +11,6 @@ export class AdminService {
       where: { role: { in: ['ADMIN', 'SUPERADMIN'] } },
     });
 
-    if (admins.length === 0) return { message: 'No admins found', admins: [] };
-
     return admins;
   }
 
