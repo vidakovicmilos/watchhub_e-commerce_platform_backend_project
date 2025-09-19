@@ -25,3 +25,21 @@ model User {
 
   @@map("users")
 }
+
+model Brand {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+
+  @@map("brands")
+}
+
+model Product {
+  id          Int    @id @default(autoincrement())
+  productName String
+
+  brandId Int
+  brand   Brand @relation(fields: [brandId], references: [id])
+
+  @@map("products")
+}
