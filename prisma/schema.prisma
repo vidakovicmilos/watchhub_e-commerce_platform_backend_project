@@ -13,6 +13,18 @@ enum Role {
   SUPERADMIN
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  UNISEX
+}
+
+enum Status {
+  PENDING
+  REJECTED
+  APPROVED
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -22,6 +34,7 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  reviews   Review[]
 
   @@map("users")
 }
@@ -36,10 +49,31 @@ model Brand {
 
 model Product {
   id          Int    @id @default(autoincrement())
-  productName String
+  name        String
+  gender      Gender
+  description String
+  price       Float
+  discount    Float  @default(0)
+  status      Status @default(PENDING)
 
   brandId Int
   brand   Brand @relation(fields: [brandId], references: [id])
 
+  reviews Review[]
+
   @@map("products")
+}
+
+model Review {
+  id     Int     @id @default(autoincrement())
+  rating Int
+  text   String?
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("reviews")
 }
