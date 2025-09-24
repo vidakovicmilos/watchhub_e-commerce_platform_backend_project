@@ -25,6 +25,12 @@ export class ProductController {
     return this.productService.getAllProducts();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('myProducts')
+  getMyProducts(@GetUser('id') userId: number) {
+    return this.productService.getMyProducts(userId);
+  }
+
   @Get(':id')
   getProductById(@Param('id', ParseIntPipe) productId: number) {
     return this.productService.getProductById(productId);
@@ -51,5 +57,24 @@ export class ProductController {
   @Post()
   createProduct(@Body() dto: ProductDto, @GetUser('id') creatorId: number) {
     return this.productService.createProduct(dto, creatorId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('myProducts/:id')
+  editMyProduct(
+    @Param('id', ParseIntPipe) productId: number,
+    @GetUser('id') userId: number,
+    @Body() dto: ProductDto,
+  ) {
+    return this.productService.editMyProduct(productId, userId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('myProducts/:id')
+  deleteMyProduct(
+    @Param('id', ParseIntPipe) productId: number,
+    @GetUser('id') userId: number,
+  ) {
+    return this.productService.deleteMyProduct(productId, userId);
   }
 }

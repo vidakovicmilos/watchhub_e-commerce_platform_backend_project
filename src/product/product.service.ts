@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductDto } from './dto';
 
@@ -75,5 +79,42 @@ export class ProductService {
       }
       throw err;
     }
+  }
+
+  async getMyProducts(userId: number) {
+    return await this.prisma.product.findMany({ where: { creatorId: userId } });
+  }
+
+  async editMyProduct(productId: number, userId: number, dto: ProductDto) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with id ${productId} not found!`);
+    } else if (product.creatorId !== userId) {
+      throw new ForbiddenException('You are not the owner of this product');
+    }
+
+    return await this.prisma.product.update({
+      where: {
+        id: productId,
+      },
+      data: { ...dto },
+    });
+  }
+
+  async deleteMyProduct(productId: number, userId: number) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with id ${productId} not found!`);
+    } else if (product.creatorId !== userId) {
+      throw new ForbiddenException('You are not the owner of this product');
+    }
+
+    return await this.prisma.product.delete({ where: { id: productId } });
   }
 }
