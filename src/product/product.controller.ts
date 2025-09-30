@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseEnumPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -15,6 +16,7 @@ import { GetUser } from 'src/auth/decorator';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
+import { Status } from '@prisma/client';
 
 @Controller('products')
 export class ProductController {
@@ -76,5 +78,15 @@ export class ProductController {
     @GetUser('id') userId: number,
   ) {
     return this.productService.deleteMyProduct(productId, userId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN', 'ADMIN')
+  @Get('status/:status')
+  getAllProductsByStatus(
+    @Param('status', new ParseEnumPipe(Status))
+    status: Status,
+  ) {
+    return this.productService.getAllProductByStatus(status);
   }
 }

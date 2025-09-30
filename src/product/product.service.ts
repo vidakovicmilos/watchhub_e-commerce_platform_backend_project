@@ -1,10 +1,12 @@
 import {
+  Body,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProductDto } from './dto';
+import { Status } from '@prisma/client';
 
 @Injectable()
 export class ProductService {
@@ -116,5 +118,11 @@ export class ProductService {
     }
 
     return await this.prisma.product.delete({ where: { id: productId } });
+  }
+
+  async getAllProductByStatus(status: Status) {
+    return await this.prisma.product.findMany({
+      where: { status: status },
+    });
   }
 }
