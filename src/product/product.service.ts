@@ -13,7 +13,9 @@ export class ProductService {
   constructor(private prisma: PrismaService) {}
 
   async getAllProducts() {
-    const products = await this.prisma.product.findMany();
+    const products = await this.prisma.product.findMany({
+      where: { status: 'APPROVED' },
+    });
 
     return products;
   }
