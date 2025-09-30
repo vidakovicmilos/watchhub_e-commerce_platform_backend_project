@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "public"."reviews" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
