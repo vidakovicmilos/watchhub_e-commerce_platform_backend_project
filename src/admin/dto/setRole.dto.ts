@@ -1,12 +1,8 @@
+import { Role } from '@prisma/client';
 import { IsEnum, IsNotEmpty } from 'class-validator';
 
-enum UserRole {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-}
-
 export class SetRoleDto {
-  @IsEnum(UserRole, { message: 'Role must be USER or ADMIN' })
+  @IsEnum(Role, { message: 'Role must be USER, ADMIN or SUPERADMIN' })
   @IsNotEmpty()
-  role: UserRole;
+  role: Role;
 }
