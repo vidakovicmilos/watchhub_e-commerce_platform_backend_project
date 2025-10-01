@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ProductDto } from './dto';
+import { ChangeProductStatusDto, ProductDto } from './dto';
 import { Status } from '@prisma/client';
 
 @Injectable()
@@ -126,5 +126,20 @@ export class ProductService {
     return await this.prisma.product.findMany({
       where: { status: status },
     });
+  }
+
+  async changeProductStatus(productId: number, dto: ChangeProductStatusDto) {
+    try {
+      return await this.prisma.product.update({
+        where: { id: productId },
+        data: { status: dto.status },
+      });
+    } catch (err) {
+      if (err.code === 'P2025') {
+        throw new NotFoundException(`Product with id ${productId} not found`);
+      }
+
+      throw err;
+    }
   }
 }

@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { ProductDto } from './dto';
+import { ChangeProductStatusDto, ProductDto } from './dto';
 import { GetUser } from 'src/auth/decorator';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
@@ -88,5 +88,15 @@ export class ProductController {
     status: Status,
   ) {
     return this.productService.getAllProductByStatus(status);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'SUPERADMIN')
+  @Post('status/:productId')
+  changeProductStatus(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Body() dto: ChangeProductStatusDto,
+  ) {
+    return this.productService.changeProductStatus(productId, dto);
   }
 }
