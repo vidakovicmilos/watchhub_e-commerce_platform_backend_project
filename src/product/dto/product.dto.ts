@@ -1,3 +1,4 @@
+import { Gender } from '@prisma/client';
 import {
   IsEnum,
   IsNotEmpty,
@@ -7,12 +8,6 @@ import {
   Max,
   Min,
 } from 'class-validator';
-
-enum Gender {
-  MALE = 'MALE',
-  FEMALE = 'FEMALE',
-  UNISEX = 'UNISEX',
-}
 
 const enumValues = Object.values(Gender).join(', ');
 
