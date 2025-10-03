@@ -5,16 +5,29 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ChangeProductStatusDto, ProductDto } from './dto';
+import { ChangeProductStatusDto, ProductDto, ProductFilterDto } from './dto';
 import { Status } from '@prisma/client';
 
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllProducts() {
+  async getAllProducts(filters: ProductFilterDto) {
+    console.log(filters);
     const products = await this.prisma.product.findMany({
-      where: { status: 'APPROVED' },
+      where: {
+        status: 'APPROVED',
+        price: {
+          gte: filters.minPrice,
+          lte: filters.maxPrice,
+        },
+        gender: filters.gender,
+        discount: {
+          gte: filters.minDiscount,
+          lte: filters.maxDiscount,
+        },
+        brandId: filters.brandId,
+      },
     });
 
     return products;

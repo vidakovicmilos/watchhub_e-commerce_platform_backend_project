@@ -8,10 +8,11 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { ChangeProductStatusDto, ProductDto } from './dto';
+import { ChangeProductStatusDto, ProductDto, ProductFilterDto } from './dto';
 import { GetUser } from 'src/auth/decorator';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
@@ -23,8 +24,8 @@ export class ProductController {
   constructor(private productService: ProductService) {}
 
   @Get()
-  getAllProducts() {
-    return this.productService.getAllProducts();
+  getAllProducts(@Query() filters: ProductFilterDto) {
+    return this.productService.getAllProducts(filters);
   }
 
   @UseGuards(JwtAuthGuard)
