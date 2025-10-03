@@ -1,5 +1,4 @@
 import {
-  Body,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -32,10 +31,25 @@ export class ProductService {
     return products;
   }
 
-  async getAllFlashDeals() {
+  async getAllFlashDeals(filters: ProductFilterDto) {
+    const minDiscount =
+      filters.minDiscount && filters.minDiscount >= 25
+        ? filters.minDiscount
+        : 25;
+
     const products = await this.prisma.product.findMany({
       where: {
-        discount: { gte: 25 },
+        status: 'APPROVED',
+        price: {
+          gte: filters.minPrice,
+          lte: filters.maxPrice,
+        },
+        gender: filters.gender,
+        discount: {
+          gte: minDiscount,
+          lte: filters.maxDiscount,
+        },
+        brandId: filters.brandId,
       },
     });
 

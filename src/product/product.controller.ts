@@ -18,6 +18,7 @@ import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
 import { Status } from '@prisma/client';
+import { filter } from 'rxjs';
 
 @Controller('products')
 export class ProductController {
@@ -29,8 +30,8 @@ export class ProductController {
   }
 
   @Get('flash-deals')
-  getAllFleshDeals() {
-    return this.productService.getAllFlashDeals();
+  getAllFleshDeals(@Query() filters: ProductFilterDto) {
+    return this.productService.getAllFlashDeals(filters);
   }
 
   @UseGuards(JwtAuthGuard)
