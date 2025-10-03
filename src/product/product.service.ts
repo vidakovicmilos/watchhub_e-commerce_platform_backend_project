@@ -12,7 +12,12 @@ export class ProductService {
   constructor(private prisma: PrismaService) {}
 
   async getAllProducts(filters: ProductFilterDto) {
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+
     const products = await this.prisma.product.findMany({
+      skip: skipProducts,
+      take: limit,
       where: {
         status: 'APPROVED',
         price: {
@@ -37,7 +42,12 @@ export class ProductService {
         ? filters.minDiscount
         : 25;
 
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+
     const products = await this.prisma.product.findMany({
+      skip: skipProducts,
+      take: limit,
       where: {
         status: 'APPROVED',
         price: {

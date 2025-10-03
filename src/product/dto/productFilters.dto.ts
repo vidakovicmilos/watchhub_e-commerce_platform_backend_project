@@ -41,4 +41,14 @@ export class ProductFilterDto {
   @Type(() => Number)
   @IsInt()
   brandId?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  limit?: number;
 }
