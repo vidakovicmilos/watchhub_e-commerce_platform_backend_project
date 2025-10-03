@@ -1,17 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SetRoleDto } from './dto/setRole.dto';
+import { AdminFiltersDto } from './dto';
 
 @Injectable()
 export class AdminService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllAdmins() {
-    const admins = await this.prisma.user.findMany({
-      where: { role: { in: ['ADMIN', 'SUPERADMIN'] } },
-    });
+  async getAllAdmins(filters: AdminFiltersDto) {
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
 
-    return admins;
+    if (!filters.role) {
+      return await this.prisma.user.findMany({
+        skip: skipProducts,
+        take: limit,
+        where: { role: { in: ['ADMIN', 'SUPERADMIN'] } },
+      });
+    }
+
+    return await this.prisma.user.findMany({
+      skip: skipProducts,
+      take: limit,
+      where: { role: filters.role },
+    });
   }
 
   async setRoleById(userId: number, dto: SetRoleDto) {

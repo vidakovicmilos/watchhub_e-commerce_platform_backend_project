@@ -5,13 +5,14 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
-import { SetRoleDto } from './dto/setRole.dto';
+import { AdminFiltersDto, SetRoleDto } from './dto';
 
 @Controller('admins')
 export class AdminController {
@@ -20,8 +21,8 @@ export class AdminController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Get()
-  getAllAdmins() {
-    return this.adminService.getAllAdmins();
+  getAllAdmins(@Query() filters: AdminFiltersDto) {
+    return this.adminService.getAllAdmins(filters);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
