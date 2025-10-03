@@ -1,1 +1,2 @@
-export * from './editUser';
+export * from './editUser.dto';
+export * from './userFilters.dto';

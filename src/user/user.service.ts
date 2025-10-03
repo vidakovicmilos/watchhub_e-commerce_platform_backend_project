@@ -1,13 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { EditUserDto } from './dto';
+import { EditUserDto, UserFiltersDto } from './dto';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllUsers() {
-    const users = await this.prisma.user.findMany();
+  async getAllUsers(filters: UserFiltersDto) {
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+    const users = await this.prisma.user.findMany({
+      skip: skipProducts,
+      take: limit,
+    });
 
     const usersWithoutPassword = users.map(({ password, ...rest }) => rest);
     return usersWithoutPassword;

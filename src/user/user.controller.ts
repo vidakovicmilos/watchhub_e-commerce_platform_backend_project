@@ -7,13 +7,14 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import type { User } from '@prisma/client';
-import { EditUserDto } from './dto';
+import { EditUserDto, UserFiltersDto } from './dto';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
 
@@ -44,8 +45,8 @@ export class UserController {
 
   // ***********************************************
   @Get()
-  getAllUsers() {
-    return this.userService.getAllUsers();
+  getAllUsers(@Query() filters: UserFiltersDto) {
+    return this.userService.getAllUsers(filters);
   }
 
   @Get(':id')
