@@ -12,7 +12,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { ChangeProductStatusDto, ProductDto, ProductFilterDto } from './dto';
+import {
+  ChangeProductStatusDto,
+  MyProductsFiltersDto,
+  ProductDto,
+  ProductFilterDto,
+} from './dto';
 import { GetUser } from 'src/auth/decorator';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
@@ -36,8 +41,11 @@ export class ProductController {
 
   @UseGuards(JwtAuthGuard)
   @Get('myProducts')
-  getMyProducts(@GetUser('id') userId: number) {
-    return this.productService.getMyProducts(userId);
+  getMyProducts(
+    @GetUser('id') userId: number,
+    @Query() filters: MyProductsFiltersDto,
+  ) {
+    return this.productService.getMyProducts(userId, filters);
   }
 
   @Get(':id')

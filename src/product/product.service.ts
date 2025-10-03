@@ -4,7 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ChangeProductStatusDto, ProductDto, ProductFilterDto } from './dto';
+import {
+  ChangeProductStatusDto,
+  MyProductsFiltersDto,
+  ProductDto,
+  ProductFilterDto,
+} from './dto';
 import { Status } from '@prisma/client';
 
 @Injectable()
@@ -131,8 +136,27 @@ export class ProductService {
     }
   }
 
-  async getMyProducts(userId: number) {
-    return await this.prisma.product.findMany({ where: { creatorId: userId } });
+  async getMyProducts(userId: number, filters: MyProductsFiltersDto) {
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+    return await this.prisma.product.findMany({
+      skip: skipProducts,
+      take: limit,
+      where: {
+        status: filters.status,
+        creatorId: userId,
+        price: {
+          gte: filters.minDiscount,
+          lte: filters.maxPrice,
+        },
+        gender: filters.gender,
+        discount: {
+          gte: filters.minDiscount,
+          lte: filters.maxDiscount,
+        },
+        brandId: filters.brandId,
+      },
+    });
   }
 
   async editMyProduct(productId: number, userId: number, dto: ProductDto) {
