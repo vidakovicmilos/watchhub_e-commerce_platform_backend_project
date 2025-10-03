@@ -13,7 +13,6 @@ export class ProductService {
   constructor(private prisma: PrismaService) {}
 
   async getAllProducts(filters: ProductFilterDto) {
-    console.log(filters);
     const products = await this.prisma.product.findMany({
       where: {
         status: 'APPROVED',
@@ -27,6 +26,16 @@ export class ProductService {
           lte: filters.maxDiscount,
         },
         brandId: filters.brandId,
+      },
+    });
+
+    return products;
+  }
+
+  async getAllFlashDeals() {
+    const products = await this.prisma.product.findMany({
+      where: {
+        discount: { gte: 25 },
       },
     });
 

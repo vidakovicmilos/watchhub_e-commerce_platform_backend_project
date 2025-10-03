@@ -28,6 +28,11 @@ export class ProductController {
     return this.productService.getAllProducts(filters);
   }
 
+  @Get('flash-deals')
+  getAllFleshDeals() {
+    return this.productService.getAllFlashDeals();
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('myProducts')
   getMyProducts(@GetUser('id') userId: number) {
