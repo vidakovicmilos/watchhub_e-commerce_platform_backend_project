@@ -12,18 +12,24 @@ export class AdminService {
     const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
 
     if (!filters.role) {
-      return await this.prisma.user.findMany({
+      const admins = await this.prisma.user.findMany({
         skip: skipProducts,
         take: limit,
         where: { role: { in: ['ADMIN', 'SUPERADMIN'] } },
       });
+
+      const adminsWithoutPassword = admins.map(({ password, ...rest }) => rest);
+      return adminsWithoutPassword;
     }
 
-    return await this.prisma.user.findMany({
+    const admins = await this.prisma.user.findMany({
       skip: skipProducts,
       take: limit,
       where: { role: filters.role },
     });
+
+    const adminsWithoutPassword = admins.map(({ password, ...rest }) => rest);
+    return adminsWithoutPassword;
   }
 
   async setRoleById(userId: number, dto: SetRoleDto) {
