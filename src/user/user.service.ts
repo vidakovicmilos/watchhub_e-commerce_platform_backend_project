@@ -12,6 +12,9 @@ export class UserService {
     const users = await this.prisma.user.findMany({
       skip: skipProducts,
       take: limit,
+      orderBy: {
+        [filters.sort as any]: filters.order,
+      },
     });
 
     const usersWithoutPassword = users.map(({ password, ...rest }) => rest);
