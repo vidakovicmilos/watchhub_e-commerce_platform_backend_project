@@ -55,6 +55,7 @@ model Product {
   description String
   price       Float
   discount    Float  @default(0)
+  finalPrice  Float?
   status      Status @default(PENDING)
 
   brandId Int

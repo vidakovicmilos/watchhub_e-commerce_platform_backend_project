@@ -14,6 +14,7 @@ import {
 import { ProductService } from './product.service';
 import {
   ChangeProductStatusDto,
+  EditProductDto,
   MyProductsFiltersDto,
   ProductDto,
   ProductFilterDto,
@@ -23,7 +24,6 @@ import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
 import { Status } from '@prisma/client';
-import { filter } from 'rxjs';
 
 @Controller('products')
 export class ProductController {
@@ -57,7 +57,7 @@ export class ProductController {
   @Roles('ADMIN', 'SUPERADMIN')
   @Patch(':id')
   editProductById(
-    @Body() dto: ProductDto,
+    @Body() dto: EditProductDto,
     @Param('id', ParseIntPipe) productId: number,
   ) {
     return this.productService.editProductById(dto, productId);
@@ -81,7 +81,7 @@ export class ProductController {
   editMyProduct(
     @Param('id', ParseIntPipe) productId: number,
     @GetUser('id') userId: number,
-    @Body() dto: ProductDto,
+    @Body() dto: EditProductDto,
   ) {
     return this.productService.editMyProduct(productId, userId, dto);
   }

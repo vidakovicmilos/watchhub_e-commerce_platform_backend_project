@@ -6,11 +6,13 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   ChangeProductStatusDto,
+  EditProductDto,
   MyProductsFiltersDto,
   ProductDto,
   ProductFilterDto,
 } from './dto';
 import { Status } from '@prisma/client';
+import { PriceUtils } from './utils';
 
 @Injectable()
 export class ProductService {
@@ -25,7 +27,7 @@ export class ProductService {
       take: limit,
       where: {
         status: 'APPROVED',
-        price: {
+        finalPrice: {
           gte: filters.minPrice,
           lte: filters.maxPrice,
         },
@@ -55,7 +57,7 @@ export class ProductService {
       take: limit,
       where: {
         status: 'APPROVED',
-        price: {
+        finalPrice: {
           gte: filters.minPrice,
           lte: filters.maxPrice,
         },
@@ -71,7 +73,7 @@ export class ProductService {
     return products;
   }
 
-  async getProductById(productId) {
+  async getProductById(productId: number) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
     });
@@ -83,17 +85,30 @@ export class ProductService {
     return product;
   }
 
-  async editProductById(dto: ProductDto, productId: number) {
+  async editProductById(dto: EditProductDto, productId: number) {
     try {
-      const product = await this.prisma.product.update({
+      let product = await this.prisma.product.update({
         where: { id: productId },
         data: { ...dto },
+      });
+
+      const finalPrice = PriceUtils.calculateFinalPrice(
+        product.price,
+        product.discount,
+      );
+
+      product = await this.prisma.product.update({
+        where: { id: productId },
+        data: { finalPrice },
       });
 
       return product;
     } catch (err) {
       if (err.code === 'P2003') {
         throw new NotFoundException(`Brand with id ${dto.brandId} not found`);
+      }
+      if (err.code === 'P2025') {
+        throw new NotFoundException(`Product with id ${productId} not found`);
       }
       throw err;
     }
@@ -120,10 +135,13 @@ export class ProductService {
 
   async createProduct(dto: ProductDto, creatorId: number) {
     try {
+      const discount = dto.discount ? dto.discount : 0;
+      const finalPrice = PriceUtils.calculateFinalPrice(dto.price, discount);
       const product = await this.prisma.product.create({
         data: {
           ...dto,
           creatorId,
+          finalPrice,
         },
       });
 
@@ -145,7 +163,7 @@ export class ProductService {
       where: {
         status: filters.status,
         creatorId: userId,
-        price: {
+        finalPrice: {
           gte: filters.minDiscount,
           lte: filters.maxPrice,
         },
@@ -159,8 +177,8 @@ export class ProductService {
     });
   }
 
-  async editMyProduct(productId: number, userId: number, dto: ProductDto) {
-    const product = await this.prisma.product.findUnique({
+  async editMyProduct(productId: number, userId: number, dto: EditProductDto) {
+    let product = await this.prisma.product.findUnique({
       where: { id: productId },
     });
 
@@ -170,11 +188,16 @@ export class ProductService {
       throw new ForbiddenException('You are not the owner of this product');
     }
 
+    const price = dto.price ?? product.price;
+    const discount = dto.discount ?? product.discount;
+
+    const finalPrice = PriceUtils.calculateFinalPrice(price, discount);
+
     return await this.prisma.product.update({
       where: {
         id: productId,
       },
-      data: { ...dto },
+      data: { ...dto, finalPrice, discount, price },
     });
   }
 
