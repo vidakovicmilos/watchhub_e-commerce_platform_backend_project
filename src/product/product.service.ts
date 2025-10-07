@@ -21,6 +21,7 @@ export class ProductService {
   async getAllProducts(filters: ProductFilterDto) {
     const limit = filters.limit || 20;
     const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+    const sort = filters.sort ?? 'finalPrice';
 
     const products = await this.prisma.product.findMany({
       skip: skipProducts,
@@ -37,6 +38,9 @@ export class ProductService {
           lte: filters.maxDiscount,
         },
         brandId: filters.brandId,
+      },
+      orderBy: {
+        [sort as any]: filters.order ?? 'asc',
       },
     });
 

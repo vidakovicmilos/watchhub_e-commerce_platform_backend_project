@@ -1,6 +1,15 @@
 import { Gender } from '@prisma/client';
-import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsEnum,
+  IsIn,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 const genderValues = Object.values(Gender).join(', ');
 
@@ -51,4 +60,15 @@ export class ProductFilterDto {
   @Type(() => Number)
   @IsInt()
   limit?: number;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['finalPrice'])
+  @Transform(({ value }) => value ?? 'finalPrice')
+  sort?: string;
+
+  @IsOptional()
+  @IsString()
+  @Transform(({ value }) => value ?? 'asc')
+  order?: 'asc' | 'desc' = 'asc';
 }
