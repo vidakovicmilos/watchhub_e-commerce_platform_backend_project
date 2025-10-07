@@ -16,6 +16,9 @@ export class AdminService {
         skip: skipProducts,
         take: limit,
         where: { role: { in: ['ADMIN', 'SUPERADMIN'] } },
+        orderBy: {
+          [filters.sort as any]: filters.limit,
+        },
       });
 
       const adminsWithoutPassword = admins.map(({ password, ...rest }) => rest);
@@ -26,6 +29,9 @@ export class AdminService {
       skip: skipProducts,
       take: limit,
       where: { role: filters.role },
+      orderBy: {
+        [filters.sort as any]: filters.limit,
+      },
     });
 
     const adminsWithoutPassword = admins.map(({ password, ...rest }) => rest);

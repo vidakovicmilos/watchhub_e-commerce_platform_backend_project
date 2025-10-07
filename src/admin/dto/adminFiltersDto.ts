@@ -1,5 +1,5 @@
-import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsEnum, IsIn, IsInt, IsOptional, IsString } from 'class-validator';
 
 enum Roles {
   ADMIN = 'ADMIN',
@@ -24,4 +24,15 @@ export class AdminFiltersDto {
   @Type(() => Number)
   @IsInt()
   limit?: number;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['createdAt'])
+  @Transform(({ value }) => value ?? 'createdAt')
+  sort?: string;
+
+  @IsOptional()
+  @IsString()
+  @Transform(({ value }) => value ?? 'asc')
+  order?: 'asc' | 'desc' = 'asc';
 }
