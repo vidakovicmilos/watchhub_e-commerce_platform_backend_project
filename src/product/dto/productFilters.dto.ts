@@ -63,7 +63,7 @@ export class ProductFilterDto {
 
   @IsOptional()
   @IsString()
-  @IsIn(['finalPrice'])
+  @IsIn(['finalPrice', 'createdAt'])
   @Transform(({ value }) => value ?? 'finalPrice')
   sort?: string;
 

@@ -55,6 +55,7 @@ export class ProductService {
 
     const limit = filters.limit || 20;
     const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+    const sort = filters.sort ?? 'finalPrice';
 
     const products = await this.prisma.product.findMany({
       skip: skipProducts,
@@ -71,6 +72,9 @@ export class ProductService {
           lte: filters.maxDiscount,
         },
         brandId: filters.brandId,
+      },
+      orderBy: {
+        [sort as any]: filters.order ?? 'asc',
       },
     });
 
@@ -159,6 +163,7 @@ export class ProductService {
   }
 
   async getMyProducts(userId: number, filters: MyProductsFiltersDto) {
+    const sort = filters.sort ?? 'finalPrice';
     const limit = filters.limit || 20;
     const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
     return await this.prisma.product.findMany({
@@ -177,6 +182,9 @@ export class ProductService {
           lte: filters.maxDiscount,
         },
         brandId: filters.brandId,
+      },
+      orderBy: {
+        [sort as any]: filters.order ?? 'asc',
       },
     });
   }
@@ -219,9 +227,29 @@ export class ProductService {
     return await this.prisma.product.delete({ where: { id: productId } });
   }
 
-  async getAllProductByStatus(status: Status) {
+  async getAllProductByStatus(status: Status, filters: ProductFilterDto) {
+    const sort = filters.sort ?? 'finalPrice';
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
     return await this.prisma.product.findMany({
-      where: { status: status },
+      skip: skipProducts,
+      take: limit,
+      where: {
+        status: status,
+        finalPrice: {
+          gte: filters.minPrice,
+          lte: filters.maxPrice,
+        },
+        gender: filters.gender,
+        discount: {
+          gte: filters.minDiscount,
+          lte: filters.maxDiscount,
+        },
+        brandId: filters.brandId,
+      },
+      orderBy: {
+        [sort as any]: filters.order ?? 'asc',
+      },
     });
   }
 

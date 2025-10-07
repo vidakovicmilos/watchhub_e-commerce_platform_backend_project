@@ -101,8 +101,9 @@ export class ProductController {
   getAllProductsByStatus(
     @Param('status', new ParseEnumPipe(Status))
     status: Status,
+    @Query() filters: ProductFilterDto,
   ) {
-    return this.productService.getAllProductByStatus(status);
+    return this.productService.getAllProductByStatus(status, filters);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
