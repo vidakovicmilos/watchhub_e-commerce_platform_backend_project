@@ -49,16 +49,17 @@ model Brand {
 }
 
 model Product {
-  id          Int       @id @default(autoincrement())
-  name        String
-  gender      Gender
-  description String
-  price       Float
-  discount    Float     @default(0)
-  finalPrice  Float?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @updatedAt
-  status      Status    @default(PENDING)
+  id            Int       @id @default(autoincrement())
+  name          String
+  gender        Gender
+  description   String
+  price         Float
+  discount      Float     @default(0)
+  finalPrice    Float?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt
+  status        Status    @default(PENDING)
+  averageRating Float?
 
   brandId Int
   brand   Brand @relation(fields: [brandId], references: [id])
