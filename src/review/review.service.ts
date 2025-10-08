@@ -6,14 +6,28 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { ReviewDto } from './dto';
+import { ReviewDto, ReviewFiltersDto } from './dto';
 
 @Injectable()
 export class ReviewService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllMyReviews(userId: number) {
-    return await this.prisma.review.findMany({ where: { userId } });
+  async getAllMyReviews(userId: number, filters: ReviewFiltersDto) {
+    const sort = filters.sort ?? 'rating';
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+    return await this.prisma.review.findMany({
+      skip: skipProducts,
+      take: limit,
+      where: {
+        userId,
+        rating: {
+          gte: filters.minRating,
+          lte: filters.maxRating,
+        },
+      },
+      orderBy: { [sort as any]: filters.order ?? 'asc' },
+    });
   }
 
   async getReviewById(reviewId: number) {
@@ -28,8 +42,22 @@ export class ReviewService {
     return review;
   }
 
-  async getAllReviewsByProductId(productId: number) {
-    return await this.prisma.review.findMany({ where: { productId } });
+  async getAllReviewsByProductId(productId: number, filters: ReviewFiltersDto) {
+    const sort = filters.sort ?? 'rating';
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+    return await this.prisma.review.findMany({
+      skip: skipProducts,
+      take: limit,
+      where: {
+        productId,
+        rating: {
+          gte: filters.minRating,
+          lte: filters.maxRating,
+        },
+      },
+      orderBy: { [sort as any]: filters.order ?? 'asc' },
+    });
   }
 
   async createReview(productId: number, userId: number, dto: ReviewDto) {

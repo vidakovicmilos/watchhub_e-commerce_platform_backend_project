@@ -7,10 +7,11 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
-import { ReviewDto } from './dto';
+import { ReviewDto, ReviewFiltersDto } from './dto';
 import { GetUser } from 'src/auth/decorator';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
@@ -22,8 +23,11 @@ export class ReviewController {
 
   @UseGuards(JwtAuthGuard)
   @Get('myReviews')
-  getAllMyReviews(@GetUser('id') userId: number) {
-    return this.reviewService.getAllMyReviews(userId);
+  getAllMyReviews(
+    @GetUser('id') userId: number,
+    @Query() filters: ReviewFiltersDto,
+  ) {
+    return this.reviewService.getAllMyReviews(userId, filters);
   }
 
   @Get('/:id')
@@ -33,9 +37,10 @@ export class ReviewController {
 
   @Get('product/:productId')
   getAllReviewsByProductId(
+    @Query() filters: ReviewFiltersDto,
     @Param('productId', ParseIntPipe) productId: number,
   ) {
-    return this.reviewService.getAllReviewsByProductId(productId);
+    return this.reviewService.getAllReviewsByProductId(productId, filters);
   }
 
   @UseGuards(JwtAuthGuard)
