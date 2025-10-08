@@ -4,14 +4,23 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BrandDto } from './dto';
+import { BrandDto, BrandFiltersDto } from './dto';
 
 @Injectable()
 export class BrandService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllBrand() {
-    const brands = await this.prisma.brand.findMany();
+  async getAllBrand(filters: BrandFiltersDto) {
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+    const names = filters.name ? filters.name.split(',') : undefined;
+    const brands = await this.prisma.brand.findMany({
+      skip: skipProducts,
+      take: limit,
+      where: {
+        name: { in: names },
+      },
+    });
 
     return brands;
   }

@@ -7,10 +7,11 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { BrandService } from './brand.service';
-import { BrandDto } from './dto';
+import { BrandDto, BrandFiltersDto } from './dto';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
@@ -20,8 +21,8 @@ export class BrandController {
   constructor(private brandService: BrandService) {}
 
   @Get()
-  getAllBrands() {
-    return this.brandService.getAllBrand();
+  getAllBrands(@Query() filters: BrandFiltersDto) {
+    return this.brandService.getAllBrand(filters);
   }
 
   @Get(':id')
