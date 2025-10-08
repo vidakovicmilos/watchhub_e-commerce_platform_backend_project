@@ -62,7 +62,21 @@ export class ReviewService {
 
   async createReview(productId: number, userId: number, dto: ReviewDto) {
     try {
-      return await this.prisma.review.create({
+      const product = await this.prisma.product.findUnique({
+        where: { id: productId },
+      });
+
+      if (!product) {
+        throw new NotFoundException(`Product with id ${productId} not found`);
+      }
+
+      if (product?.status !== 'APPROVED') {
+        throw new BadRequestException(
+          'You cannot review a product that is not approved.',
+        );
+      }
+
+      const review = await this.prisma.review.create({
         data: {
           productId,
           userId,
@@ -70,6 +84,26 @@ export class ReviewService {
           text: dto.text,
         },
       });
+
+      const oldAverageRating = product.averageRating ?? 0;
+      const ratingCount = product.ratingCount ?? 0;
+      const newRatingCount = ratingCount + 1;
+
+      const newAverageRating =
+        Math.round(
+          ((oldAverageRating * ratingCount + review.rating) / newRatingCount) *
+            10,
+        ) / 10;
+
+      await this.prisma.product.update({
+        where: { id: productId },
+        data: {
+          averageRating: newAverageRating,
+          ratingCount: newRatingCount,
+        },
+      });
+
+      return review;
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {
@@ -84,7 +118,41 @@ export class ReviewService {
 
   async deleteReviewById(reviewId: number) {
     try {
-      return await this.prisma.review.delete({ where: { id: reviewId } });
+      const review = await this.prisma.review.delete({
+        where: { id: reviewId },
+      });
+
+      const product = await this.prisma.product.findUnique({
+        where: { id: review.productId },
+      });
+
+      const ratingCount = product?.ratingCount ?? 0;
+      const newRatingCount = ratingCount - 1;
+
+      if (newRatingCount <= 0) {
+        await this.prisma.product.update({
+          where: { id: review.productId },
+          data: {
+            averageRating: 0,
+            ratingCount: 0,
+          },
+        });
+        return review;
+      }
+
+      const oldAverageRating = product?.averageRating ?? 0;
+      const newAverageRating =
+        Math.round(
+          ((oldAverageRating * ratingCount - review.rating) / newRatingCount) *
+            10,
+        ) / 10;
+
+      await this.prisma.product.update({
+        where: { id: review.productId },
+        data: { averageRating: newAverageRating, ratingCount: newRatingCount },
+      });
+
+      return review;
     } catch (err) {
       if (err.code === 'P2025') {
         throw new NotFoundException(`Review with id ${reviewId} not found`);
@@ -107,13 +175,40 @@ export class ReviewService {
       throw new ForbiddenException('You are not the owner of this review');
     }
 
-    return await this.prisma.review.update({
+    const product = await this.prisma.product.findUnique({
+      where: { id: review.productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    const oldAverageRating = product.averageRating ?? 0;
+    const ratingCount = product.ratingCount ?? 0;
+
+    const updatedReview = await this.prisma.review.update({
       where: { id: reviewId },
       data: {
         rating: dto.rating,
         text: dto.text,
       },
     });
+
+    const newAverageRating =
+      Math.round(
+        ((oldAverageRating * ratingCount -
+          review.rating +
+          updatedReview.rating) /
+          ratingCount) *
+          10,
+      ) / 10;
+
+    await this.prisma.product.update({
+      where: { id: review.productId },
+      data: { averageRating: newAverageRating },
+    });
+
+    return updatedReview;
   }
 
   async deleteMyReviewById(reviewId: number, userId: number) {
@@ -128,6 +223,37 @@ export class ReviewService {
     if (review.userId !== userId) {
       throw new ForbiddenException('You are not the owner of this review');
     }
+
+    const product = await this.prisma.product.findUnique({
+      where: { id: review.productId },
+    });
+
+    const oldAverageRating = product?.averageRating ?? 0;
+    const ratingCount = product?.ratingCount ?? 0;
+    const newRatingCount = ratingCount - 1;
+
+    if (newRatingCount <= 0) {
+      await this.prisma.product.update({
+        where: { id: review.productId },
+        data: {
+          averageRating: 0,
+          ratingCount: 0,
+        },
+      });
+
+      return await this.prisma.review.delete({ where: { id: reviewId } });
+    }
+
+    const newAverageRating =
+      Math.round(
+        ((oldAverageRating * ratingCount - review.rating) / newRatingCount) *
+          10,
+      ) / 10;
+
+    await this.prisma.product.update({
+      where: { id: review.productId },
+      data: { averageRating: newAverageRating, ratingCount: newRatingCount },
+    });
 
     return await this.prisma.review.delete({ where: { id: reviewId } });
   }
