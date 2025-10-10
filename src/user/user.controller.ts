@@ -55,14 +55,14 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPERADMIN')
+  @Roles('SUPERADMIN', 'ADMIN')
   @Delete(':id')
   deleteUserById(@Param('id', ParseIntPipe) userId: number) {
     return this.userService.deleteUser(userId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPERADMIN')
+  @Roles('SUPERADMIN', 'ADMIN')
   @Patch(':id')
   editUser(
     @Param('id', ParseIntPipe) userId: number,
