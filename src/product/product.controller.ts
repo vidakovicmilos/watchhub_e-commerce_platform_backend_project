@@ -9,7 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import {
@@ -24,6 +26,7 @@ import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
 import { Status } from '@prisma/client';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 export class ProductController {
@@ -55,12 +58,14 @@ export class ProductController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'SUPERADMIN')
+  @UseInterceptors(FileInterceptor('image'))
   @Patch(':id')
   editProductById(
     @Body() dto: EditProductDto,
     @Param('id', ParseIntPipe) productId: number,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.productService.editProductById(dto, productId);
+    return this.productService.editProductById(dto, productId, file);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -72,18 +77,25 @@ export class ProductController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  createProduct(@Body() dto: ProductDto, @GetUser('id') creatorId: number) {
-    return this.productService.createProduct(dto, creatorId);
+  @UseInterceptors(FileInterceptor('image'))
+  createProduct(
+    @Body() dto: ProductDto,
+    @GetUser('id') creatorId: number,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.productService.createProduct(dto, creatorId, file);
   }
 
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('image'))
   @Patch('myProducts/:id')
   editMyProduct(
     @Param('id', ParseIntPipe) productId: number,
     @GetUser('id') userId: number,
     @Body() dto: EditProductDto,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.productService.editMyProduct(productId, userId, dto);
+    return this.productService.editMyProduct(productId, userId, dto, file);
   }
 
   @UseGuards(JwtAuthGuard)

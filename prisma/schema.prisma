@@ -61,6 +61,8 @@ model Product {
   status        Status    @default(PENDING)
   averageRating Float?    @default(0)
   ratingCount   Int?      @default(0)
+  imageUrl      String?
+  imagePublicId String?
 
   brandId Int
   brand   Brand @relation(fields: [brandId], references: [id])

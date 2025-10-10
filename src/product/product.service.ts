@@ -13,10 +13,14 @@ import {
 } from './dto';
 import { Status } from '@prisma/client';
 import { PriceUtils } from './utils';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinaryService: CloudinaryService,
+  ) {}
 
   async getAllProducts(filters: ProductFilterDto) {
     const limit = filters.limit || 20;
@@ -93,8 +97,14 @@ export class ProductService {
     return product;
   }
 
-  async editProductById(dto: EditProductDto, productId: number) {
+  async editProductById(
+    dto: EditProductDto,
+    productId: number,
+    file?: Express.Multer.File,
+  ) {
     try {
+      let imageUrl: string | undefined;
+      let publicId: string | undefined;
       let product = await this.prisma.product.update({
         where: { id: productId },
         data: { ...dto },
@@ -105,9 +115,19 @@ export class ProductService {
         product.discount,
       );
 
+      if (file && product.imagePublicId) {
+        await this.cloudinaryService.deleteImage(product.imagePublicId);
+      }
+
+      if (file) {
+        const image = await this.cloudinaryService.uploadImage(file);
+        imageUrl = image.secure_url;
+        publicId = image.public_id;
+      }
+
       product = await this.prisma.product.update({
         where: { id: productId },
-        data: { finalPrice },
+        data: { finalPrice, imageUrl, imagePublicId: publicId },
       });
 
       return product;
@@ -128,10 +148,11 @@ export class ProductService {
         where: { id: productId },
       });
 
-      return {
-        message: `User with id ${productId} was sucessfuly deleted!`,
-        product,
-      };
+      if (product.imagePublicId) {
+        await this.cloudinaryService.deleteImage(product.imagePublicId);
+      }
+
+      return product;
     } catch (err) {
       if (err.code === 'P2025') {
         throw new NotFoundException(`Product with id ${productId} not found`);
@@ -141,8 +162,21 @@ export class ProductService {
     }
   }
 
-  async createProduct(dto: ProductDto, creatorId: number) {
+  async createProduct(
+    dto: ProductDto,
+    creatorId: number,
+    file?: Express.Multer.File,
+  ) {
     try {
+      let imageUrl: string | undefined;
+      let publicId: string | undefined;
+
+      if (file) {
+        const image = await this.cloudinaryService.uploadImage(file);
+        imageUrl = image.secure_url;
+        publicId = image.public_id;
+      }
+
       const discount = dto.discount ? dto.discount : 0;
       const finalPrice = PriceUtils.calculateFinalPrice(dto.price, discount);
       const product = await this.prisma.product.create({
@@ -150,6 +184,8 @@ export class ProductService {
           ...dto,
           creatorId,
           finalPrice,
+          imageUrl,
+          imagePublicId: publicId,
         },
       });
 
@@ -189,7 +225,14 @@ export class ProductService {
     });
   }
 
-  async editMyProduct(productId: number, userId: number, dto: EditProductDto) {
+  async editMyProduct(
+    productId: number,
+    userId: number,
+    dto: EditProductDto,
+    file?: Express.Multer.File,
+  ) {
+    let imageUrl: string | undefined;
+    let publicId: string | undefined;
     let product = await this.prisma.product.findUnique({
       where: { id: productId },
     });
@@ -198,6 +241,16 @@ export class ProductService {
       throw new NotFoundException(`Product with id ${productId} not found!`);
     } else if (product.creatorId !== userId) {
       throw new ForbiddenException('You are not the owner of this product');
+    }
+
+    if (file && product.imagePublicId) {
+      await this.cloudinaryService.deleteImage(product.imagePublicId);
+    }
+
+    if (file) {
+      const image = await this.cloudinaryService.uploadImage(file);
+      imageUrl = image.secure_url;
+      publicId = image.public_id;
     }
 
     const price = dto.price ?? product.price;
@@ -209,7 +262,14 @@ export class ProductService {
       where: {
         id: productId,
       },
-      data: { ...dto, finalPrice, discount, price },
+      data: {
+        ...dto,
+        finalPrice,
+        discount,
+        price,
+        imageUrl,
+        imagePublicId: publicId,
+      },
     });
   }
 
@@ -222,6 +282,10 @@ export class ProductService {
       throw new NotFoundException(`Product with id ${productId} not found!`);
     } else if (product.creatorId !== userId) {
       throw new ForbiddenException('You are not the owner of this product');
+    }
+
+    if (product.imagePublicId) {
+      await this.cloudinaryService.deleteImage(product.imagePublicId);
     }
 
     return await this.prisma.product.delete({ where: { id: productId } });
