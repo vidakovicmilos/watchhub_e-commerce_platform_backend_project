@@ -1,4 +1,5 @@
 import { Gender } from '@prisma/client';
+import { Type } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -26,16 +27,19 @@ export class EditProductDto {
   @IsOptional()
   description: string;
 
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   price: number;
 
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   @Min(0)
   @Max(100)
   discount?: number;
 
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   brandId: number;

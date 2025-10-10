@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsInt,
   IsNotEmpty,
@@ -8,6 +9,7 @@ import {
 } from 'class-validator';
 
 export class ReviewDto {
+  @Type(() => Number)
   @IsNotEmpty()
   @IsInt()
   @Min(1)

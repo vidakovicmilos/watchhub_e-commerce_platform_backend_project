@@ -15,11 +15,13 @@ export class AdminFiltersDto {
   })
   role?: Roles;
 
+  @Type(() => Number)
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   page?: number;
 
+  @Type(() => Number)
   @IsOptional()
   @Type(() => Number)
   @IsInt()
