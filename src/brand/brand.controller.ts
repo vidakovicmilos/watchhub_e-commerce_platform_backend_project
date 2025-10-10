@@ -41,14 +41,14 @@ export class BrandController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPERADMIN')
+  @Roles('SUPERADMIN', 'ADMIN')
   @Delete(':id')
   deleteBrandById(@Param('id', ParseIntPipe) brandId: number) {
     return this.brandService.deleteBrandById(brandId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('SUPERADMIN')
+  @Roles('SUPERADMIN', 'ADMIN')
   @Post()
   createBrand(@Body() dto: BrandDto) {
     return this.brandService.createBrand(dto);
