@@ -10,6 +10,18 @@ export class PurchaseService {
     return await this.prisma.purchase.findMany();
   }
 
+  async getPurchasesAsCustomer(userId: number) {
+    return await this.prisma.purchase.findMany({
+      where: { customerId: userId },
+    });
+  }
+
+  async getPurchasesAsSeller(userId: number) {
+    return await this.prisma.purchase.findMany({
+      where: { sellerId: userId },
+    });
+  }
+
   async getPurchaseById(purchaseId: number) {
     const purchase = await this.prisma.purchase.findUnique({
       where: { id: purchaseId },

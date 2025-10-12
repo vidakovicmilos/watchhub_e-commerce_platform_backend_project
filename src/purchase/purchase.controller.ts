@@ -14,6 +14,7 @@ import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
 import { ChangePurchaseStatus } from './dto';
+import { GetUser } from 'src/auth/decorator';
 
 @Controller('purchases')
 export class PurchaseController {
@@ -24,6 +25,18 @@ export class PurchaseController {
   @Get()
   getAllPurchases() {
     return this.purchaseService.getAllPurchases();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('my')
+  getPurchasesAsCustomer(@GetUser('id') userId: number) {
+    return this.purchaseService.getPurchasesAsCustomer(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('my-sales')
+  getPurchasesAsSeller(@GetUser('id') userId: number) {
+    return this.purchaseService.getPurchasesAsSeller(userId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
