@@ -26,6 +26,7 @@ import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
 import { Status } from '@prisma/client';
+import type { User } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
@@ -126,5 +127,14 @@ export class ProductController {
     @Body() dto: ChangeProductStatusDto,
   ) {
     return this.productService.changeProductStatus(productId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/checkout-session/:productId')
+  getCheckoutSessin(
+    @Param('productId', ParseIntPipe) productId: number,
+    @GetUser() user: User,
+  ) {
+    return this.productService.getCheckoutSession(productId, user);
   }
 }

@@ -12,15 +12,25 @@ import {
   ProductFilterDto,
 } from './dto';
 import { Status } from '@prisma/client';
+import type { User } from '@prisma/client';
 import { PriceUtils } from './utils';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import Stripe from 'stripe';
+import { ConfigService } from '@nestjs/config';
+import { url } from 'inspector';
 
 @Injectable()
 export class ProductService {
+  private stripe: Stripe;
   constructor(
     private prisma: PrismaService,
     private cloudinaryService: CloudinaryService,
-  ) {}
+    private config: ConfigService,
+  ) {
+    this.stripe = new Stripe(this.config.get('STRIPE_SECRET_KEY')!, {
+      apiVersion: this.config.get('STRIPE_API_VERSION'),
+    });
+  }
 
   async getAllProducts(filters: ProductFilterDto) {
     const limit = filters.limit || 20;
@@ -330,5 +340,40 @@ export class ProductService {
 
       throw err;
     }
+  }
+
+  async getCheckoutSession(productId: number, user: User) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with id ${productId} not found!`);
+    }
+
+    const price = product.finalPrice ?? product.price;
+
+    const session = await this.stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      customer_email: user.email,
+      line_items: [
+        {
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: product.name,
+            },
+            unit_amount: price * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      success_url:
+        'https://github.com/vidakovicmilos/watchhub_e-commerce_platform_backend_project', // This is placeholder for frontend url
+      cancel_url: 'https://localhost:3333/cancel', // This is placeholder for frontend url
+    });
+
+    return { url: session.url };
   }
 }
