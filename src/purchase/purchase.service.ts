@@ -39,4 +39,16 @@ export class PurchaseService {
       throw err;
     }
   }
+
+  async deletePurchaseById(purchaseId: number) {
+    try {
+      return await this.prisma.purchase.delete({ where: { id: purchaseId } });
+    } catch (err) {
+      if (err.code === 'P2025') {
+        throw new NotFoundException(`Purchase with id ${purchaseId} not found`);
+      }
+
+      throw err;
+    }
+  }
 }

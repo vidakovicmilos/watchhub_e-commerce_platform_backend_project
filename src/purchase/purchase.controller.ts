@@ -42,4 +42,11 @@ export class PurchaseController {
   ) {
     return this.purchaseService.changePurchaseStatusById(purchaseId, dto);
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPERADMIN', 'ADMIN')
+  @Delete(':purchaseId')
+  deletePurchaseById(@Param('purchaseId', ParseIntPipe) purchaseId: number) {
+    return this.purchaseService.deletePurchaseById(purchaseId);
+  }
 }
