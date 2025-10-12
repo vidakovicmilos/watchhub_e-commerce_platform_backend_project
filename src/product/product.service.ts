@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -17,7 +18,6 @@ import { PriceUtils } from './utils';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
-import { url } from 'inspector';
 
 @Injectable()
 export class ProductService {
@@ -349,8 +349,11 @@ export class ProductService {
 
     if (!product) {
       throw new NotFoundException(`Product with id ${productId} not found!`);
+    } else if (product.status !== 'APPROVED') {
+      throw new BadRequestException(
+        `Product with id ${productId} is not approved for sale.`,
+      );
     }
-
     const price = product.finalPrice ?? product.price;
 
     const session = await this.stripe.checkout.sessions.create({
@@ -372,6 +375,15 @@ export class ProductService {
       success_url:
         'https://github.com/vidakovicmilos/watchhub_e-commerce_platform_backend_project', // This is placeholder for frontend url
       cancel_url: 'https://localhost:3333/cancel', // This is placeholder for frontend url
+      shipping_address_collection: {
+        allowed_countries: ['ME', 'RS', 'HR', 'BA', 'XK', 'AL'],
+      },
+      metadata: {
+        productId: product.id.toString(),
+        customerId: user.id.toString(),
+        sellerId: product.creatorId,
+        customerEmail: user.email,
+      },
     });
 
     return { url: session.url };
