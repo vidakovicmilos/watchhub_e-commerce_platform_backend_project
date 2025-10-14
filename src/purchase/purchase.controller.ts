@@ -39,6 +39,38 @@ export class PurchaseController {
     return this.purchaseService.getPurchasesAsSeller(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('my/:purchaseId')
+  getPurchaseByIdAsCustomer(
+    @Param('purchaseId', ParseIntPipe) purchaseId: number,
+    @GetUser('id') userId: number,
+  ) {
+    return this.purchaseService.getPurchaseByIdAsCustomer(purchaseId, userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('my-sales/:purchaseId')
+  getPurchaseByIdAsSeller(
+    @Param('purchaseId', ParseIntPipe) purchaseId: number,
+    @GetUser('id') userId: number,
+  ) {
+    return this.purchaseService.getPurchaseByIdAsSeller(purchaseId, userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('my-sales/:purchaseId')
+  changePurchaseStatusAsSeller(
+    @Param('purchaseId', ParseIntPipe) purchaseId: number,
+    @GetUser('id') userId: number,
+    @Body() dto: ChangePurchaseStatus,
+  ) {
+    return this.purchaseService.changePurchaseStatusByIdAsSeller(
+      purchaseId,
+      userId,
+      dto,
+    );
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Get(':purchaseId')

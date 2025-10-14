@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ChangePurchaseStatus } from './dto';
 
@@ -19,6 +23,55 @@ export class PurchaseService {
   async getPurchasesAsSeller(userId: number) {
     return await this.prisma.purchase.findMany({
       where: { sellerId: userId },
+    });
+  }
+
+  async getPurchaseByIdAsCustomer(purchaseId: number, userId: number) {
+    const purchase = await this.prisma.purchase.findUnique({
+      where: { id: purchaseId },
+    });
+
+    if (!purchase) {
+      throw new NotFoundException(`Purchase with id ${purchaseId} not found.`);
+    } else if (purchase.customerId !== userId) {
+      throw new ForbiddenException('You are not the owner of this purchase');
+    }
+
+    return purchase;
+  }
+
+  async getPurchaseByIdAsSeller(purchaseId: number, userId: number) {
+    const purchase = await this.prisma.purchase.findUnique({
+      where: { id: purchaseId },
+    });
+
+    if (!purchase) {
+      throw new NotFoundException(`Purchase with id ${purchaseId} not found.`);
+    } else if (purchase.sellerId !== userId) {
+      throw new ForbiddenException('You are not the owner of this purchase');
+    }
+
+    return purchase;
+  }
+
+  async changePurchaseStatusByIdAsSeller(
+    purchaseId: number,
+    userId: number,
+    dto: ChangePurchaseStatus,
+  ) {
+    const purchase = await this.prisma.purchase.findUnique({
+      where: { id: purchaseId },
+    });
+
+    if (!purchase) {
+      throw new NotFoundException(`Purchase with id ${purchaseId} not found.`);
+    } else if (purchase.sellerId !== userId) {
+      throw new ForbiddenException('You are not the owner of this purchase');
+    }
+
+    return await this.prisma.purchase.update({
+      where: { id: purchaseId },
+      data: { status: dto.status },
     });
   }
 
