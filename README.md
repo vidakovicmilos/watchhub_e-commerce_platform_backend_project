@@ -88,21 +88,16 @@ Before cloning the project, make sure you have the following installed on your s
 
 7. **Expose your local server via Ngrok** if you need to test webhooks from Stripe:
 
-   ```bash
-   ngrok http 3000
-   ```
+   `npm run start`
 
-8. **Set up Stripe webhook:**
+8. Start the application in development mode:
 
-   - Copy your Ngrok public URL.
-   - Go to your Stripe Dashboard and create a webhook using the Ngrok URL to handle Stripe events for your project.
-   - Make sure to listen for the event `checkout.session.completed` to handle successful payments properly.
+   `npm run start:dev`
+
+The application will be available at: http://localhost:3333
 
 ---
 
-## ✅ Notes
+## Author
 
-- Make sure you have valid credentials for Stripe and Cloudinary in your `.env` file.
-- All payments and media uploads are handled through Stripe and Cloudinary respectively.
-- This setup is for development; production setup may require additional configuration.
-
+Miloš Vidaković
