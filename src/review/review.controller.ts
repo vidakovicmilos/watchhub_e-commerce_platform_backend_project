@@ -16,11 +16,13 @@ import { GetUser } from 'src/auth/decorator';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('reviews')
 export class ReviewController {
   constructor(private reviewService: ReviewService) {}
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('myReviews')
   getAllMyReviews(
@@ -35,6 +37,7 @@ export class ReviewController {
     return this.reviewService.getReviewById(reviewId);
   }
 
+  @ApiBearerAuth('access-token')
   @Get('product/:productId')
   getAllReviewsByProductId(
     @Query() filters: ReviewFiltersDto,
@@ -43,6 +46,7 @@ export class ReviewController {
     return this.reviewService.getAllReviewsByProductId(productId, filters);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post('/:productId')
   cretaeReview(
@@ -53,6 +57,7 @@ export class ReviewController {
     return this.reviewService.createReview(productId, userId, dto);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Delete('/:reviewId')
@@ -60,6 +65,7 @@ export class ReviewController {
     return this.reviewService.deleteReviewById(reviewId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Delete('myReviews/:reviewId')
   deleteMyReviewById(
@@ -69,6 +75,7 @@ export class ReviewController {
     return this.reviewService.deleteMyReviewById(reviewId, userId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Patch('myReviews/:reviewId')
   editMyReview(

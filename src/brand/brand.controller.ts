@@ -15,6 +15,7 @@ import { BrandDto, BrandFiltersDto } from './dto';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('brands')
 export class BrandController {
@@ -30,6 +31,7 @@ export class BrandController {
     return this.brandService.getBrandById(brandId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')
   @Patch(':id')
@@ -40,6 +42,7 @@ export class BrandController {
     return this.brandService.editBrandById(brandId, dto);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Delete(':id')
@@ -47,6 +50,7 @@ export class BrandController {
     return this.brandService.deleteBrandById(brandId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Post()

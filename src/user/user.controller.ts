@@ -17,6 +17,7 @@ import type { User } from '@prisma/client';
 import { EditUserDto, UserFiltersDto } from './dto';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Injectable()
 @Controller('users')
@@ -25,18 +26,21 @@ export class UserController {
 
   // **************** me ***************************
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getMe(@GetUser() user: User) {
     return user;
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Patch('me')
   editMe(@GetUser('id') userId: number, @Body() dto: EditUserDto) {
     return this.userService.editUser(userId, dto);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Delete('me')
   deleteMe(@GetUser('id') userId: number) {
@@ -54,6 +58,7 @@ export class UserController {
     return this.userService.getUserById(userId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Delete(':id')
@@ -61,6 +66,7 @@ export class UserController {
     return this.userService.deleteUser(userId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Patch(':id')

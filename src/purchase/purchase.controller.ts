@@ -15,11 +15,13 @@ import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
 import { ChangePurchaseStatus } from './dto';
 import { GetUser } from 'src/auth/decorator';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('purchases')
 export class PurchaseController {
   constructor(private purchaseService: PurchaseService) {}
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Get()
@@ -27,18 +29,21 @@ export class PurchaseController {
     return this.purchaseService.getAllPurchases();
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('my')
   getPurchasesAsCustomer(@GetUser('id') userId: number) {
     return this.purchaseService.getPurchasesAsCustomer(userId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('my-sales')
   getPurchasesAsSeller(@GetUser('id') userId: number) {
     return this.purchaseService.getPurchasesAsSeller(userId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('my/:purchaseId')
   getPurchaseByIdAsCustomer(
@@ -48,6 +53,7 @@ export class PurchaseController {
     return this.purchaseService.getPurchaseByIdAsCustomer(purchaseId, userId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('my-sales/:purchaseId')
   getPurchaseByIdAsSeller(
@@ -57,6 +63,7 @@ export class PurchaseController {
     return this.purchaseService.getPurchaseByIdAsSeller(purchaseId, userId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Patch('my-sales/:purchaseId')
   changePurchaseStatusAsSeller(
@@ -71,6 +78,7 @@ export class PurchaseController {
     );
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Get(':purchaseId')
@@ -78,6 +86,7 @@ export class PurchaseController {
     return this.purchaseService.getPurchaseById(purchaseId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Patch(':purchaseId')
@@ -88,6 +97,7 @@ export class PurchaseController {
     return this.purchaseService.changePurchaseStatusById(purchaseId, dto);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Delete(':purchaseId')

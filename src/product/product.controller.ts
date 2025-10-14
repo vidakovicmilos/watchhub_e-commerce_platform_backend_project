@@ -28,6 +28,7 @@ import { Roles } from 'src/decorators';
 import { Status } from '@prisma/client';
 import type { User } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('products')
 export class ProductController {
@@ -43,6 +44,7 @@ export class ProductController {
     return this.productService.getAllFlashDeals(filters);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('myProducts')
   getMyProducts(
@@ -57,6 +59,7 @@ export class ProductController {
     return this.productService.getProductById(productId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'SUPERADMIN')
   @UseInterceptors(FileInterceptor('image'))
@@ -69,6 +72,7 @@ export class ProductController {
     return this.productService.editProductById(dto, productId, file);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'SUPERADMIN')
   @Delete(':id')
@@ -76,6 +80,7 @@ export class ProductController {
     return this.productService.deleteProductById(productId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Post()
   @UseInterceptors(FileInterceptor('image'))
@@ -87,6 +92,7 @@ export class ProductController {
     return this.productService.createProduct(dto, creatorId, file);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
   @Patch('myProducts/:id')
@@ -99,6 +105,7 @@ export class ProductController {
     return this.productService.editMyProduct(productId, userId, dto, file);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Delete('myProducts/:id')
   deleteMyProduct(
@@ -108,6 +115,7 @@ export class ProductController {
     return this.productService.deleteMyProduct(productId, userId);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Get('status/:status')
@@ -119,6 +127,7 @@ export class ProductController {
     return this.productService.getAllProductByStatus(status, filters);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'SUPERADMIN')
   @Post('status/:productId')
@@ -129,6 +138,7 @@ export class ProductController {
     return this.productService.changeProductStatus(productId, dto);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('/checkout-session/:productId')
   getCheckoutSessin(

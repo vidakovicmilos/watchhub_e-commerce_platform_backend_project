@@ -13,11 +13,13 @@ import { JwtAuthGuard } from 'src/auth/guard';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
 import { AdminFiltersDto, SetRoleDto } from './dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('admins')
 export class AdminController {
   constructor(private adminService: AdminService) {}
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Get()
@@ -25,6 +27,7 @@ export class AdminController {
     return this.adminService.getAllAdmins(filters);
   }
 
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN')
   @Patch('setRole/:id')
