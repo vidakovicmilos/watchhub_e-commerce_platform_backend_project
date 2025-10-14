@@ -24,6 +24,7 @@ export class CloudinaryService {
       const upload = cloudinary.uploader.upload_stream(
         {
           folder,
+          public_id: uniquePublicId,
           format: 'jpg',
           transformation: [
             { width: 500, height: 500, crop: 'fill', gravity: 'auto' },
