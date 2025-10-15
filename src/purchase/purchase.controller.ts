@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { PurchaseService } from './purchase.service';
@@ -13,7 +14,12 @@ import { JwtAuthGuard } from 'src/auth/guard';
 
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
-import { ChangePurchaseStatus } from './dto';
+import {
+  ChangePurchaseStatus,
+  PurchaseAdminFiltersDto,
+  PurchaseCustomerFiltersDto,
+  PurchaseSellerFiltersDto,
+} from './dto';
 import { GetUser } from 'src/auth/decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
@@ -25,22 +31,28 @@ export class PurchaseController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('SUPERADMIN', 'ADMIN')
   @Get()
-  getAllPurchases() {
-    return this.purchaseService.getAllPurchases();
+  getAllPurchases(@Query() filters: PurchaseAdminFiltersDto) {
+    return this.purchaseService.getAllPurchases(filters);
   }
 
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('my')
-  getPurchasesAsCustomer(@GetUser('id') userId: number) {
-    return this.purchaseService.getPurchasesAsCustomer(userId);
+  getPurchasesAsCustomer(
+    @GetUser('id') userId: number,
+    @Query() filters: PurchaseCustomerFiltersDto,
+  ) {
+    return this.purchaseService.getPurchasesAsCustomer(userId, filters);
   }
 
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('my-sales')
-  getPurchasesAsSeller(@GetUser('id') userId: number) {
-    return this.purchaseService.getPurchasesAsSeller(userId);
+  getPurchasesAsSeller(
+    @GetUser('id') userId: number,
+    @Query() filters: PurchaseSellerFiltersDto,
+  ) {
+    return this.purchaseService.getPurchasesAsSeller(userId, filters);
   }
 
   @ApiBearerAuth('access-token')

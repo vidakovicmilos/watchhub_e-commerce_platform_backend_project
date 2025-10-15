@@ -4,25 +4,75 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ChangePurchaseStatus } from './dto';
+import {
+  ChangePurchaseStatus,
+  PurchaseAdminFiltersDto,
+  PurchaseCustomerFiltersDto,
+  PurchaseSellerFiltersDto,
+} from './dto';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class PurchaseService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllPurchases() {
-    return await this.prisma.purchase.findMany();
-  }
-
-  async getPurchasesAsCustomer(userId: number) {
+  async getAllPurchases(filters: PurchaseAdminFiltersDto) {
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+    const sort = filters.sort ?? 'createdAt';
     return await this.prisma.purchase.findMany({
-      where: { customerId: userId },
+      skip: skipProducts,
+      take: limit,
+      where: {
+        status: filters.status,
+        customerId: filters.customerId,
+        sellerId: filters.sellerId,
+      },
+      orderBy: {
+        [sort as any]: filters.order ?? 'asc',
+      },
     });
   }
 
-  async getPurchasesAsSeller(userId: number) {
+  async getPurchasesAsCustomer(
+    userId: number,
+    filters: PurchaseCustomerFiltersDto,
+  ) {
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+    const sort = filters.sort ?? 'createdAt';
     return await this.prisma.purchase.findMany({
-      where: { sellerId: userId },
+      skip: skipProducts,
+      take: limit,
+      where: {
+        status: filters.status,
+        customerId: userId,
+        sellerId: filters.sellerId,
+      },
+      orderBy: {
+        [sort as any]: filters.order ?? 'asc',
+      },
+    });
+  }
+
+  async getPurchasesAsSeller(
+    userId: number,
+    filters: PurchaseSellerFiltersDto,
+  ) {
+    const limit = filters.limit || 20;
+    const skipProducts = filters.page ? (filters.page - 1) * limit : 0;
+    const sort = filters.sort ?? 'createdAt';
+    return await this.prisma.purchase.findMany({
+      skip: skipProducts,
+      take: limit,
+      where: {
+        status: filters.status,
+        sellerId: userId,
+        customerId: filters.customerId,
+      },
+      orderBy: {
+        [sort as any]: filters.order ?? 'asc',
+      },
     });
   }
 
