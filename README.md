@@ -22,7 +22,7 @@ You can view the Postman API documentation here: [WatchHub API Documentation](ht
 
 ---
 
-## ⚙️ Prerequisites
+## 🔧 Prerequisites
 
 Before cloning the project, make sure you have the following installed on your system:
 
@@ -57,7 +57,7 @@ Before cloning the project, make sure you have the following installed on your s
    npm install
    ```
 
-3. **Create a **``** file** in the root directory with the following environment variables:
+3. **Create a `.env` file** in the root directory with the following environment variables:
 
    ```env
    DATABASE_URL="postgresql://postgres:123@localhost:5434/nest?schema=public"
@@ -88,13 +88,17 @@ Before cloning the project, make sure you have the following installed on your s
 
 7. **Expose your local server via Ngrok** if you need to test webhooks from Stripe:
 
-   `npm run start`
+   ```bash
+   npm run start
+   ```
 
 8. Start the application in development mode:
 
-   `npm run start:dev`
+   ```bash
+   npm run start:dev
+   ```
 
-The application will be available at: http://localhost:3333
+The application will be available at: http://localhost:3333/api
 
 ---
 
