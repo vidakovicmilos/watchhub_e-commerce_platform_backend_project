@@ -102,6 +102,13 @@ The application will be available at: http://localhost:3333/api
 
 ---
 
+## 📄 License
+
+This project is completely free to use for **learning and practice purposes**.  
+You are welcome to use, modify, and experiment with the code without any restrictions, as long as it is not used for commercial purposes without proper authorization.
+
+---
+
 ## Author
 
 Miloš Vidaković
