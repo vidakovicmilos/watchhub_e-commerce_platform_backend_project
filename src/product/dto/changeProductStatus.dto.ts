@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Status } from '@prisma/client';
 import { IsEnum, IsNotEmpty } from 'class-validator';
 
@@ -8,5 +9,6 @@ export class ChangeProductStatusDto {
     message: `Status must be one of the following values: ${enumValues}`,
   })
   @IsNotEmpty()
+  @ApiProperty({ example: 'APPROVED' })
   status: Status;
 }

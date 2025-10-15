@@ -28,7 +28,12 @@ import { Roles } from 'src/decorators';
 import { Status } from '@prisma/client';
 import type { User } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  getSchemaPath,
+} from '@nestjs/swagger';
 
 @Controller('products')
 export class ProductController {
@@ -63,6 +68,24 @@ export class ProductController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'SUPERADMIN')
   @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(EditProductDto) },
+        {
+          type: 'object',
+          properties: {
+            image: {
+              type: 'string',
+              format: 'binary',
+              description: 'Upload file',
+            },
+          },
+        },
+      ],
+    },
+  })
   @Patch(':id')
   editProductById(
     @Body() dto: EditProductDto,
@@ -84,6 +107,24 @@ export class ProductController {
   @UseGuards(JwtAuthGuard)
   @Post()
   @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(ProductDto) },
+        {
+          type: 'object',
+          properties: {
+            image: {
+              type: 'string',
+              format: 'binary',
+              description: 'Upload file',
+            },
+          },
+        },
+      ],
+    },
+  })
   createProduct(
     @Body() dto: ProductDto,
     @GetUser('id') creatorId: number,
@@ -95,6 +136,24 @@ export class ProductController {
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(EditProductDto) },
+        {
+          type: 'object',
+          properties: {
+            image: {
+              type: 'string',
+              format: 'binary',
+              description: 'Upload file',
+            },
+          },
+        },
+      ],
+    },
+  })
   @Patch('myProducts/:id')
   editMyProduct(
     @Param('id', ParseIntPipe) productId: number,

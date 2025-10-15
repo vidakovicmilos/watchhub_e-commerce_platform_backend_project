@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { PurchaseStatus } from '@prisma/client';
 import { IsEnum, IsNotEmpty } from 'class-validator';
 
@@ -8,5 +9,6 @@ export class ChangePurchaseStatus {
   @IsEnum(PurchaseStatus, {
     message: `Status must be one of the following values: ${enumValues}`,
   })
+  @ApiProperty({ example: PurchaseStatus.SHIPPED, enum: PurchaseStatus })
   status: PurchaseStatus;
 }
