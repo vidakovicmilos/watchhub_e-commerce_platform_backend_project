@@ -18,6 +18,7 @@ You can view the Postman API documentation here: [WatchHub API Documentation](ht
 - **PostgreSQL** – relational database
 - **Stripe** – payment gateway
 - **Cloudinary** – image and media management
+- **Mailtrap** – testing email service
 - **Docker** – containerization
 
 ---
@@ -39,6 +40,7 @@ Before cloning the project, make sure you have the following installed on your s
 5. [Ngrok](https://ngrok.com/) – for exposing local servers to the internet
 6. [Stripe account](https://stripe.com/)
 7. [Cloudinary account](https://cloudinary.com/)
+8. [Mailtrap account](https://mailtrap.io/) – for testing emails in development
 
 ---
 
@@ -70,6 +72,11 @@ Before cloning the project, make sure you have the following installed on your s
    STRIPE_SECRET_KEY=sk_test_51R
    STRIPE_API_VERSION=2025-09-30.clover
    STRIPE_WEBHOOK_SECRET=whc_g15Taavadq
+
+   MAILTRAP_HOST=sandbox.smtp.mailtrap.io
+   MAILTRAP_PORT=2525
+   MAILTRAP_USER=989fdc90184723213d9
+   MAILTRAP_PASSWORD=71314f3a4c023213
    ```
 
 4. **Set up the database:** Make sure your PostgreSQL server is running and accessible via the URL specified in `DATABASE_URL`.
@@ -92,13 +99,36 @@ Before cloning the project, make sure you have the following installed on your s
    npm run start
    ```
 
-8. Start the application in development mode:
+8. The application will be available at: [http://localhost:3333/api](http://localhost:3333/api)
 
-   ```bash
-   npm run start:dev
-   ```
+---
 
-The application will be available at: http://localhost:3333/api
+## 📤 How to make Mailtrap work
+
+1. Make sure the Mailtrap credentials in `.env` are correct (`MAILTRAP_HOST`, `MAILTRAP_PORT`, `MAILTRAP_USER`, `MAILTRAP_PASSWORD`).
+2. Use these credentials in your `MailService` (or whatever service you use for sending emails). For example:
+
+```ts
+import * as nodemailer from 'nodemailer';
+
+const transporter = nodemailer.createTransport({
+  host: process.env.MAILTRAP_HOST,
+  port: Number(process.env.MAILTRAP_PORT),
+  auth: {
+    user: process.env.MAILTRAP_USER,
+    pass: process.env.MAILTRAP_PASSWORD,
+  },
+});
+
+await transporter.sendMail({
+  from: 'watchhub@example.com',
+  to: userEmail,
+  subject: 'Reset Password',
+  html: `<p>Click <a href='${resetUrl}'>here</a> to reset your password.</p>`,
+});
+```
+
+3. Start your NestJS server in development mode and trigger the password reset to see emails in the Mailtrap inbox.
 
 ---
 
