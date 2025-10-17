@@ -24,6 +24,7 @@ import {
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { ChangePasswordDto } from './dto/changePasswod.dto';
 
 @Injectable()
 @Controller('users')
@@ -31,14 +32,25 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   // Password *********************************
+
   @Post('forget-password')
   forgetPassword(@Body() dto: ForgetPasswordDto) {
     return this.userService.forgetPassword(dto);
   }
 
-  @Post('reset-password')
+  @Patch('reset-password')
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.userService.resetPassword(dto);
+  }
+
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard)
+  @Patch('change-password')
+  changePassword(
+    @GetUser('id') userId: number,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.userService.changePassword(userId, dto);
   }
 
   // **************** me ***************************

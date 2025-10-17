@@ -12,6 +12,7 @@ import {
   UserFiltersDto,
 } from './dto';
 import { MailService } from 'src/mail/mail.service';
+import { ChangePasswordDto } from './dto/changePasswod.dto';
 
 @Injectable()
 export class UserService {
@@ -69,6 +70,30 @@ export class UserService {
     await this.prisma.resetCode.delete({ where: { id: resetRecord.id } });
 
     return { message: 'Password successfully reset' };
+  }
+
+  async changePassword(userId: number, dto: ChangePasswordDto) {
+    let user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const pwMatches = await argon.verify(user!.password, dto.oldPassword);
+    if (!pwMatches) {
+      throw new BadRequestException('Old password is incorrect');
+    }
+
+    if (dto.oldPassword === dto.newPassword) {
+      throw new BadRequestException(
+        'New password cannot be the same as old password',
+      );
+    }
+
+    const newPassword = await argon.hash(dto.newPassword);
+
+    user = await this.prisma.user.update({
+      where: { id: user!.id },
+      data: { password: newPassword },
+    });
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   async getAllUsers(filters: UserFiltersDto) {
