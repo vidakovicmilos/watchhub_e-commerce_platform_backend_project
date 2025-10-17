@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { generate6DigitCode } from './utils';
@@ -32,12 +36,18 @@ export class MailService {
     );
     html = html.replace('{{CODE}}', code);
 
-    await this.transporter.sendMail({
-      from: '"WatchHub" <noreply@watchub.com>',
-      to,
-      subject: 'Reset Password',
-      html,
-    });
+    try {
+      await this.transporter.sendMail({
+        from: '"WatchHub" <noreply@watchub.com>',
+        to,
+        subject: 'Reset Password',
+        html,
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Unable to send reset password email',
+      );
+    }
 
     return { expiresAt, code };
   }

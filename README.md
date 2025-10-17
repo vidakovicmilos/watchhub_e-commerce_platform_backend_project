@@ -103,35 +103,6 @@ Before cloning the project, make sure you have the following installed on your s
 
 ---
 
-## 📤 How to make Mailtrap work
-
-1. Make sure the Mailtrap credentials in `.env` are correct (`MAILTRAP_HOST`, `MAILTRAP_PORT`, `MAILTRAP_USER`, `MAILTRAP_PASSWORD`).
-2. Use these credentials in your `MailService` (or whatever service you use for sending emails). For example:
-
-```ts
-import * as nodemailer from 'nodemailer';
-
-const transporter = nodemailer.createTransport({
-  host: process.env.MAILTRAP_HOST,
-  port: Number(process.env.MAILTRAP_PORT),
-  auth: {
-    user: process.env.MAILTRAP_USER,
-    pass: process.env.MAILTRAP_PASSWORD,
-  },
-});
-
-await transporter.sendMail({
-  from: 'watchhub@example.com',
-  to: userEmail,
-  subject: 'Reset Password',
-  html: `<p>Click <a href='${resetUrl}'>here</a> to reset your password.</p>`,
-});
-```
-
-3. Start your NestJS server in development mode and trigger the password reset to see emails in the Mailtrap inbox.
-
----
-
 ## 📄 License
 
 This project is completely free to use for **learning and practice purposes**.  
