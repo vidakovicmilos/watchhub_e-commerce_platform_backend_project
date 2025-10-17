@@ -27,6 +27,19 @@ export class MailService {
     });
   }
 
+  async sendWelcomeMail(to: string, firstName: string, lastName: string) {
+    let html = await readFile('src/mail/templates/welcome.html', 'utf-8');
+    html = html.replace('{{FIRST_NAME}}', firstName);
+    html = html.replace('{{LAST_NAME}}', lastName);
+
+    await this.transporter.sendMail({
+      from: '"WatchHub" <noreply@watchub.com>',
+      to,
+      subject: 'Reset Password',
+      html,
+    });
+  }
+
   async sendRestPasswordMail(to: string) {
     const code = generate6DigitCode();
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000);

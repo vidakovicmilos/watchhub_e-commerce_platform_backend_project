@@ -5,6 +5,7 @@ import { LoginDto, SignupDto } from './dto';
 import { Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private config: ConfigService,
+    private mailService: MailService,
   ) {}
 
   async signup(dto: SignupDto) {
@@ -26,6 +28,14 @@ export class AuthService {
           password,
         },
       });
+
+      if (user) {
+        this.mailService.sendWelcomeMail(
+          user.email,
+          user.firstName,
+          user.lastName,
+        );
+      }
 
       return this.signToken(user.id, user.email);
     } catch (error) {
