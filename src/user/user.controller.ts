@@ -7,6 +7,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -14,7 +15,12 @@ import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import type { User } from '@prisma/client';
-import { EditUserDto, UserFiltersDto } from './dto';
+import {
+  EditUserDto,
+  ForgetPasswordDto,
+  ResetPasswordDto,
+  UserFiltersDto,
+} from './dto';
 import { RolesGuard } from 'src/guards';
 import { Roles } from 'src/decorators';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -24,8 +30,18 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  // **************** me ***************************
+  // Password *********************************
+  @Post('forget-password')
+  forgetPassword(@Body() dto: ForgetPasswordDto) {
+    return this.userService.forgetPassword(dto);
+  }
 
+  @Post('reset-password')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.userService.resetPassword(dto);
+  }
+
+  // **************** me ***************************
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   @Get('me')

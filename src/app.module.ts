@@ -10,6 +10,7 @@ import { ReviewModule } from './review/review.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { StripeWebhookModule } from './stripe-webhook/stripe-webhook.module';
 import { PurchaseModule } from './purchase/purchase.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PurchaseModule } from './purchase/purchase.module';
     CloudinaryModule,
     StripeWebhookModule,
     PurchaseModule,
+    MailModule,
   ],
 })
 export class AppModule {}

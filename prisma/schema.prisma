@@ -27,19 +27,30 @@ enum Status {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
+  id        Int         @id @default(autoincrement())
+  email     String      @unique
   firstName String
   lastName  String
-  role      Role       @default(USER)
+  role      Role        @default(USER)
   password  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime?  @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime?   @updatedAt
   reviews   Review[]
   Product   Product[]
   Purchase  Purchase[]
+  ResetCode ResetCode[]
 
   @@map("users")
+}
+
+model ResetCode {
+  id        Int      @id @default(autoincrement())
+  code      String
+  userId    Int
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, code])
 }
 
 model Brand {

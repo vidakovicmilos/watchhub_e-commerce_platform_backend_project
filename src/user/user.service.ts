@@ -1,10 +1,75 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { EditUserDto, UserFiltersDto } from './dto';
+import * as argon from 'argon2';
+import {
+  EditUserDto,
+  ForgetPasswordDto,
+  ResetPasswordDto,
+  UserFiltersDto,
+} from './dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
+
+  async forgetPassword(dto: ForgetPasswordDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with email '${dto.email}' not found.`);
+    }
+
+    await this.prisma.resetCode.deleteMany({ where: { userId: user.id } });
+
+    const restPasswordMail = await this.mailService.sendRestPasswordMail(
+      dto.email,
+    );
+
+    await this.prisma.resetCode.create({
+      data: {
+        code: restPasswordMail.code,
+        userId: user.id,
+        expiresAt: restPasswordMail.expiresAt,
+      },
+    });
+
+    return { message: 'Reset password email sent' };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const resetRecord = await this.prisma.resetCode.findFirst({
+      where: {
+        code: dto.code,
+        user: { email: dto.email },
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    if (!resetRecord) {
+      throw new BadRequestException('Invalid or expired reset code');
+    }
+
+    const newPassword = await argon.hash(dto.newPassword);
+
+    await this.prisma.user.update({
+      where: { id: resetRecord.userId },
+      data: { password: newPassword },
+    });
+
+    await this.prisma.resetCode.delete({ where: { id: resetRecord.id } });
+
+    return { message: 'Password successfully reset' };
+  }
 
   async getAllUsers(filters: UserFiltersDto) {
     const limit = filters.limit || 20;
