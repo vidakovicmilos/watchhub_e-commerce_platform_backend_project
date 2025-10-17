@@ -14,7 +14,7 @@ export const GetUser = createParamDecorator(
       return request.user![data];
     }
 
-    // If no specific field is requested, return the entire user object
-    return request.user;
+    const { password, ...user } = request.user;
+    return user;
   },
 );
